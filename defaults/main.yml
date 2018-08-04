@@ -1,0 +1,5 @@
+---
+# defaults file for apache_simple
+  server_name: "test1.com"
+  host_ip: "127.0.0.1"
+  http_port: 8081

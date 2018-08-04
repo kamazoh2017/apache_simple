@@ -1,0 +1,51 @@
+---
+# tasks file for apache_simple
+
+  #install apache2
+  # - name: install apache2
+  #   apt:
+  #    name: apache2
+  #    update_cache: yes
+  #    state: latest
+
+  #create the vhosts
+  #create root document
+  - name: root directory
+    file:
+      name: /var/www/html/{{ server_name }}
+      state: directory
+      recurse: yes
+    # with_items: "{{ server_name }}"
+
+  - name: index file
+    file:
+      name: /var/www/html/{{ server_name }}/index.html
+      state: touch
+
+  - name:
+    file:
+      path: /var/www/
+      mode: "u=rw,g=wx,o=rwx"
+
+  - name:
+    template:
+      src:  vhost.j2
+      dest: /etc/apache2/sites-available/{{ server_name }}.conf
+    # with_items: "{{ server_name }}"
+
+  - name: a2ensite {{ server_name }}
+    command: a2ensite {{ server_name }}
+    args:
+      creates: /etc/apache2/sites-enabled/{{ server_name }}.conf
+    # with_items: "{{ server_name }}"
+    notify:
+      - restart apache2
+
+  - name: set host name
+    lineinfile:
+      path: /etc/hosts
+      insertbefore: '^# The following lines are desirable for IPv6 capable hosts$'
+      line: "{{ host_ip }}   {{ server_name }} \n"
+      backup: yes
+    # with_items:
+    #   - { ip: "{{ host_ip }}", domain: "{{ server_name }}" }
